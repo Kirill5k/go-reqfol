@@ -1,12 +1,12 @@
 package main
 
 import (
-	"kirill5/reqfol/internal/server"
+	"kirill5k/reqfol/internal/server"
 	"log"
 )
 
 func main() {
-	conf := server.Cofing{}
+	conf := server.Config{Port: 8080}
 	srv := server.NewEchoServer(&conf)
 
 	if err := srv.Start(); err != nil {
