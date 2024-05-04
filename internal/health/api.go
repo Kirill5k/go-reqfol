@@ -1,8 +1,11 @@
 package health
 
 import (
+	"github.com/labstack/echo/v4"
+	"kirill5k/reqfol/internal/server"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"time"
 )
@@ -36,4 +39,11 @@ func NewApi() *Api {
 		ipAddress:   getIpaddress(),
 		appVersion:  os.Getenv("VERSION"),
 	}
+}
+
+func (api *Api) RegisterRoutes(server server.Server) {
+	server.AddRoute("GET", "/health/status", func(ctx echo.Context) error {
+		status := StatusUp(api.startupTime, api.ipAddress, api.appVersion)
+		return ctx.JSON(http.StatusOK, status)
+	})
 }
