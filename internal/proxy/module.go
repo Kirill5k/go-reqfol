@@ -1,4 +1,4 @@
-package health
+package proxy
 
 type Module struct {
 	Api *Api
