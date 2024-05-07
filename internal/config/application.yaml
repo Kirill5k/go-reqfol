@@ -1,0 +1,5 @@
+client:
+  max-idle-conns: 500
+  max-idle-conns-per-host: 100
+  idle-conn-timeout-seconds: 600
+  timeout-seconds: 120
