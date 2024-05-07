@@ -5,7 +5,6 @@ import (
 	"kirill5k/reqfol/internal/config"
 	"net/http"
 	"strings"
-	"time"
 )
 
 type Client interface {
@@ -21,12 +20,12 @@ func NewRestyClient(conf config.Client) Client {
 		SetTransport(&http.Transport{
 			MaxIdleConns:        conf.MaxIdleConns,
 			MaxIdleConnsPerHost: conf.MaxIdleConnsPerHost,
-			IdleConnTimeout:     time.Duration(conf.IdleConnTimeoutMs) * time.Millisecond,
+			IdleConnTimeout:     conf.IdleConnTimeout,
 		}).
-		SetTimeout(time.Duration(conf.TimeoutMs) * time.Millisecond).
+		SetTimeout(conf.Timeout).
 		SetRetryCount(conf.RetryCount).
-		SetRetryWaitTime(time.Duration(conf.RetryWaitTimeMs) * time.Millisecond).
-		SetRetryMaxWaitTime(time.Duration(conf.RetryMaxWaitTimeMs) * time.Millisecond).
+		SetRetryWaitTime(conf.RetryWaitTime).
+		SetRetryMaxWaitTime(conf.RetryMaxWaitTime).
 		AddRetryCondition(func(response *resty.Response, err error) bool {
 			return response.StatusCode() == http.StatusInternalServerError || response.StatusCode() == http.StatusRequestTimeout ||
 				(err != nil && strings.Contains(err.Error(), "Client.Timeout"))

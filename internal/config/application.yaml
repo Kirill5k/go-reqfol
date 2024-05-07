@@ -1,8 +1,8 @@
 client:
   max-idle-conns: 500
   max-idle-conns-per-host: 100
-  idle-conn-timeout-ms: 600000
-  timeout-ms: 120000
+  idle-conn-timeout: 10m
+  timeout: 2m
   retry-count: 5
-  retry-wait-time-ms: 200
-  retry-max-wait-time-ms: 1000
+  retry-wait-time: 2s
+  retry-max-wait-time: 10s

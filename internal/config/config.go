@@ -1,11 +1,13 @@
 package config
 
+import "time"
+
 type Client struct {
 	MaxIdleConns        int
 	MaxIdleConnsPerHost int
-	IdleConnTimeoutMs   int
-	TimeoutMs           int
+	IdleConnTimeout     time.Duration
+	Timeout             time.Duration
 	RetryCount          int
-	RetryWaitTimeMs     int
-	RetryMaxWaitTimeMs  int
+	RetryWaitTime       time.Duration
+	RetryMaxWaitTime    time.Duration
 }
