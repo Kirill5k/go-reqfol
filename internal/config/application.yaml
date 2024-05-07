@@ -1,3 +1,6 @@
+server:
+  port: 6060
+
 client:
   max-idle-conns: 500
   max-idle-conns-per-host: 100
