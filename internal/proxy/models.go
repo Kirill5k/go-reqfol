@@ -2,10 +2,10 @@ package proxy
 
 type RequestMetadata struct {
 	Method      string
-	url         string
+	Url         string
 	Headers     map[string]string
 	QueryParams map[string]string
-	body        string
+	Body        string
 }
 
 type ResponseMetadata struct {

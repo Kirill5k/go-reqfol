@@ -8,7 +8,7 @@ import (
 )
 
 type Client interface {
-	Send(req RequestMetadata) *ResponseMetadata
+	Send(req RequestMetadata) (*ResponseMetadata, error)
 }
 
 type restyClient struct {
@@ -33,6 +33,20 @@ func NewRestyClient(conf config.Client) Client {
 	return restyClient{client: client}
 }
 
-func (rc restyClient) Send(req RequestMetadata) *ResponseMetadata {
-	return &ResponseMetadata{}
+func (rc restyClient) Send(req RequestMetadata) (*ResponseMetadata, error) {
+	res, err := rc.client.R().
+		SetHeaders(req.Headers).
+		SetBody(req.Body).
+		SetQueryParams(req.QueryParams).
+		Execute(req.Method, req.Url)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &ResponseMetadata{
+		StatusCode:  res.StatusCode(),
+		Body:        string(res.Body()[:]),
+		ContentType: res.Header().Get("Content-Type"),
+	}, nil
 }
