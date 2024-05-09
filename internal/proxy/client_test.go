@@ -1,0 +1,69 @@
+package proxy
+
+import (
+	"github.com/stretchr/testify/require"
+	"io"
+	"kirill5k/reqfol/internal/config"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+)
+
+const successResponse = `{"response": "Hello, World!"}`
+
+func TestRestyClient_Send(t *testing.T) {
+	requestPath := ""
+	requestBody := ""
+	requestHeaders := make(map[string]string)
+	requestQueryParams := make(map[string]string)
+	server := httptest.NewServer(http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			requestPath = r.URL.Path
+			for pn, pv := range r.URL.Query() {
+				requestQueryParams[pn] = pv[0]
+			}
+			if body, err := io.ReadAll(r.Body); err == nil {
+				requestBody = string(body[:])
+			}
+			for hk, hv := range r.Header {
+				requestHeaders[hk] = hv[0]
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_, err := w.Write([]byte(successResponse))
+			require.NoError(t, err)
+		}))
+	defer server.Close()
+
+	client := NewRestyClient(clientConfig())
+
+	request := RequestMetadata{
+		Method:      "POST",
+		Url:         server.URL + "/hello/world",
+		Headers:     map[string]string{"Foo": "bar", "User-Agent": "test"},
+		QueryParams: map[string]string{"param1": "value"},
+		Body:        `{"body": "requestBody"}`,
+	}
+	response, err := client.Send(request)
+
+	require.NoError(t, err)
+	require.Contains(t, request.Url, requestPath)
+	require.Equal(t, request.Body, requestBody)
+	require.Subset(t, requestHeaders, request.Headers)
+	require.Equal(t, request.QueryParams, requestQueryParams)
+	require.Equal(t, "application/json", response.ContentType)
+	require.Equal(t, 200, response.StatusCode)
+	require.Equal(t, successResponse, response.Body)
+}
+
+func clientConfig() config.Client {
+	return config.Client{
+		MaxIdleConns:        1,
+		MaxIdleConnsPerHost: 1,
+		IdleConnTimeout:     1,
+		Timeout:             1 * time.Minute,
+		RetryCount:          5,
+		RetryWaitTime:       100 * time.Millisecond,
+		RetryMaxWaitTime:    100 * time.Millisecond,
+	}
+}
