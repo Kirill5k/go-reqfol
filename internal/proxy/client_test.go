@@ -10,9 +10,10 @@ import (
 	"time"
 )
 
-const successResponse = `{"response": "Hello, World!"}`
+const successResponse = `{"message": "Hello, World!"}`
+const errorResponse = `{"message": "Internal Server Error"}`
 
-func TestRestyClient_Send(t *testing.T) {
+func TestRestyClient_Send_ReturnsOk(t *testing.T) {
 	requestPath := ""
 	requestBody := ""
 	requestHeaders := make(map[string]string)
@@ -51,6 +52,41 @@ func TestRestyClient_Send(t *testing.T) {
 	require.Equal(t, request.Body, requestBody)
 	require.Subset(t, requestHeaders, request.Headers)
 	require.Equal(t, request.QueryParams, requestQueryParams)
+	require.Equal(t, "application/json", response.ContentType)
+	require.Equal(t, 200, response.StatusCode)
+	require.Equal(t, successResponse, response.Body)
+}
+
+func TestRestyClient_Send_RetriesOnerror(t *testing.T) {
+	requests := 0
+	server := httptest.NewServer(http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			requests++
+			w.Header().Set("Content-Type", "application/json")
+			if requests < 2 {
+				w.WriteHeader(500)
+				_, err := w.Write([]byte(errorResponse))
+				require.NoError(t, err)
+			} else {
+				w.WriteHeader(200)
+				_, err := w.Write([]byte(successResponse))
+				require.NoError(t, err)
+			}
+		}))
+	defer server.Close()
+
+	client := NewRestyClient(clientConfig())
+
+	request := RequestMetadata{
+		Method:      "POST",
+		Url:         server.URL + "/hello/world",
+		Headers:     map[string]string{"Foo": "bar", "User-Agent": "test"},
+		QueryParams: map[string]string{"param1": "value"},
+		Body:        `{"body": "requestBody"}`,
+	}
+	response, err := client.Send(request)
+
+	require.NoError(t, err)
 	require.Equal(t, "application/json", response.ContentType)
 	require.Equal(t, 200, response.StatusCode)
 	require.Equal(t, successResponse, response.Body)
