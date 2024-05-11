@@ -1,11 +1,15 @@
 package proxy
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"io"
 	"kirill5k/reqfol/internal/server"
 	"net/http"
-	"strings"
+)
+
+const (
+	HeaderXRerouteTo = "X-Reroute-To"
 )
 
 type Api struct {
@@ -25,8 +29,31 @@ TODO:
 func (api *Api) RegisterRoutes(server server.Server) {
 	handler := func(ctx echo.Context) error {
 
-		req := newRequestMetadata(ctx.Request())
-		res, err := api.client.Send(*req)
+		redirectUrl := ctx.Request().Header.Get(HeaderXRerouteTo)
+		if redirectUrl == "" {
+			return ctx.String(http.StatusForbidden, fmt.Sprintf("Missing %s header", HeaderXRerouteTo))
+		}
+		headers := make(map[string]string)
+		for hk, hv := range ctx.Request().Header {
+			headers[hk] = hv[0]
+		}
+		queryParams := make(map[string]string)
+		for pk, pv := range ctx.Request().URL.Query() {
+			queryParams[pk] = pv[0]
+		}
+		var requestBody = ""
+		if body, err := io.ReadAll(ctx.Request().Body); err == nil {
+			requestBody = string(body[:])
+		}
+		req := RequestMetadata{
+			Method:      ctx.Request().Method,
+			Url:         redirectUrl + ctx.Request().URL.Path,
+			Headers:     headers,
+			QueryParams: queryParams,
+			Body:        requestBody,
+		}
+
+		res, err := api.client.Send(req)
 		if err != nil {
 			return ctx.String(http.StatusInternalServerError, err.Error())
 		}
@@ -35,33 +62,4 @@ func (api *Api) RegisterRoutes(server server.Server) {
 
 	server.AddRoute("GET", "/*", handler)
 	server.AddRoute("POST", "/*", handler)
-}
-
-func newRequestMetadata(req *http.Request) *RequestMetadata {
-	headers := make(map[string]string)
-	for hk, hv := range req.Header {
-		headers[strings.ToLower(hk)] = hv[0]
-	}
-	queryParams := make(map[string]string)
-	for pk, pv := range req.URL.Query() {
-		queryParams[pk] = pv[0]
-	}
-
-	var requestBody = ""
-	if body, err := io.ReadAll(req.Body); err == nil {
-		requestBody = string(body[:])
-	}
-
-	var url = req.URL.Host + req.URL.Path
-	if redirectUrl, ok := headers["x-reroute-to"]; ok {
-		url = redirectUrl + req.URL.Path
-	}
-
-	return &RequestMetadata{
-		Method:      req.Method,
-		Url:         url,
-		Headers:     headers,
-		QueryParams: queryParams,
-		Body:        requestBody,
-	}
 }
