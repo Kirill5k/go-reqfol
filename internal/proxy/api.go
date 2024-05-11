@@ -33,14 +33,14 @@ func (api *Api) RegisterRoutes(server server.Server) {
 		return ctx.Blob(res.StatusCode, res.ContentType, []byte(res.Body))
 	}
 
-	server.AddRoute("GET", "/", handler)
-	server.AddRoute("POST", "/", handler)
+	server.AddRoute("GET", "/*", handler)
+	server.AddRoute("POST", "/*", handler)
 }
 
 func newRequestMetadata(req *http.Request) *RequestMetadata {
 	headers := make(map[string]string)
 	for hk, hv := range req.Header {
-		headers[hk] = strings.ToLower(hv[0])
+		headers[strings.ToLower(hk)] = hv[0]
 	}
 	queryParams := make(map[string]string)
 	for pk, pv := range req.URL.Query() {
