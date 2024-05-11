@@ -1,17 +1,20 @@
 package main
 
 import (
+	"kirill5k/reqfol/internal/config"
 	"kirill5k/reqfol/internal/health"
+	"kirill5k/reqfol/internal/proxy"
 	"kirill5k/reqfol/internal/server"
 	"log"
 )
 
 func main() {
-	conf := server.Config{Port: 8080}
-	srv := server.NewEchoServer(&conf)
+	conf := config.LoadAppConfig()
+	srv := server.NewEchoServer(&conf.Server)
 
 	apis := []server.RouteRegister{
 		health.NewModule().Api,
+		proxy.NewModule(&conf.Client).Api,
 	}
 	for _, api := range apis {
 		api.RegisterRoutes(srv)

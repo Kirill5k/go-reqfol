@@ -6,13 +6,10 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
 	"github.com/ziflex/lecho/v3"
+	"kirill5k/reqfol/internal/config"
 	"net/http"
 	"os"
 )
-
-type Config struct {
-	Port int
-}
 
 type Server interface {
 	Start() error
@@ -49,7 +46,7 @@ func (s *echoServer) PrefixRoute(prefix string) {
 	s.routeGroup = s.echo.Group(prefix)
 }
 
-func NewEchoServer(config *Config) Server {
+func NewEchoServer(config *config.Server) Server {
 	e := echo.New()
 	logger := lecho.New(
 		os.Stdout,

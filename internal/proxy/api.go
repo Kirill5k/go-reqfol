@@ -12,11 +12,12 @@ type Api struct {
 	client Client
 }
 
-func NewApi() *Api {
-	return &Api{}
+func NewApi(client Client) *Api {
+	return &Api{client: client}
 }
 
-/*TODO:
+/*
+TODO:
 1: Sanitise headers
 2: Logging
 3: Interrapt on 403

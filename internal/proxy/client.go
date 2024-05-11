@@ -15,7 +15,7 @@ type restyClient struct {
 	client *resty.Client
 }
 
-func NewRestyClient(conf config.Client) Client {
+func NewRestyClient(conf *config.Client) Client {
 	client := resty.New().
 		SetTransport(&http.Transport{
 			MaxIdleConns:        conf.MaxIdleConns,
