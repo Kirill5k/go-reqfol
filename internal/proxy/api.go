@@ -6,10 +6,14 @@ import (
 	"io"
 	"kirill5k/reqfol/internal/server"
 	"net/http"
+	"regexp"
+	"strings"
 )
 
 const (
-	HeaderXRerouteTo = "X-Reroute-To"
+	headerXRerouteTo = "X-Reroute-To"
+
+	invalidHeaderRegex = "^((x|cf|fly|sec)-.*|host|via)$"
 )
 
 type Api struct {
@@ -29,13 +33,15 @@ TODO:
 func (api *Api) RegisterRoutes(server server.Server) {
 	handler := func(ctx echo.Context) error {
 
-		redirectUrl := ctx.Request().Header.Get(HeaderXRerouteTo)
+		redirectUrl := ctx.Request().Header.Get(headerXRerouteTo)
 		if redirectUrl == "" {
-			return ctx.String(http.StatusForbidden, fmt.Sprintf("Missing %s header", HeaderXRerouteTo))
+			return ctx.String(http.StatusForbidden, fmt.Sprintf("Missing %s header", headerXRerouteTo))
 		}
 		headers := make(map[string]string)
 		for hk, hv := range ctx.Request().Header {
-			headers[hk] = hv[0]
+			if matches, _ := regexp.MatchString(invalidHeaderRegex, strings.ToLower(hk)); !matches {
+				headers[hk] = hv[0]
+			}
 		}
 		queryParams := make(map[string]string)
 		for pk, pv := range ctx.Request().URL.Query() {
