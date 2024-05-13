@@ -13,7 +13,7 @@ import (
 const (
 	headerXRerouteTo = "X-Reroute-To"
 
-	invalidHeaderRegex = "^((x|cf|fly|sec)-.*|host|via)$"
+	invalidHeaderRegex = "(?i)^((x|cf|fly|sec)-.*|host|via)$"
 )
 
 type Api struct {
