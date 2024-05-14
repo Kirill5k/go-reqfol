@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/labstack/gommon/log"
+	"github.com/rs/zerolog/log"
 	"github.com/ziflex/lecho/v3"
 	"kirill5k/reqfol/internal/config"
 	"net/http"
-	"os"
 )
 
 type Server interface {
@@ -54,9 +53,8 @@ func (s *echoServer) PrefixRoute(prefix string) {
 
 func NewEchoServer(config *config.Server) Server {
 	e := echo.New()
-	logger := lecho.New(
-		os.Stdout,
-		lecho.WithLevel(log.DEBUG),
+	logger := lecho.From(
+		log.Logger,
 		lecho.WithTimestamp(),
 		lecho.WithCaller(),
 	)
