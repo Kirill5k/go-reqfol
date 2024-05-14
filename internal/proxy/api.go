@@ -26,7 +26,6 @@ func NewApi(client Client) *Api {
 
 /*
 TODO:
-1: Sanitise headers
 2: Logging
 3: Interrapt on 403
 */
@@ -51,15 +50,14 @@ func (api *Api) RegisterRoutes(server server.Server) {
 		if body, err := io.ReadAll(ctx.Request().Body); err == nil {
 			requestBody = string(body[:])
 		}
-		req := RequestMetadata{
+
+		res, err := api.client.Send(RequestMetadata{
 			Method:      ctx.Request().Method,
 			Url:         redirectUrl + ctx.Request().URL.Path,
 			Headers:     headers,
 			QueryParams: queryParams,
 			Body:        requestBody,
-		}
-
-		res, err := api.client.Send(req)
+		})
 		if err != nil {
 			return ctx.String(http.StatusInternalServerError, err.Error())
 		}

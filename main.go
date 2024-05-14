@@ -1,14 +1,22 @@
 package main
 
 import (
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog/pkgerrors"
 	"kirill5k/reqfol/internal/config"
 	"kirill5k/reqfol/internal/health"
 	"kirill5k/reqfol/internal/proxy"
 	"kirill5k/reqfol/internal/server"
-	"log"
+	"os"
 )
 
 func main() {
+	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, NoColor: false, TimeFormat: "2006-01-02T15:04:05.999"})
+
 	conf := config.LoadAppConfig()
 	srv := server.NewEchoServer(&conf.Server)
 
@@ -21,6 +29,6 @@ func main() {
 	}
 
 	if err := srv.Start(); err != nil {
-		log.Fatalf("failed to start http server: %s", err)
+		log.Fatal().Err(err).Msgf("Failed to start server on port %d", conf.Server.Port)
 	}
 }
