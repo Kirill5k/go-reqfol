@@ -30,7 +30,5 @@ func main() {
 		api.RegisterRoutes(srv)
 	}
 
-	if err := srv.Start(); err != nil {
-		log.Fatal().Err(err).Msgf("Failed to start server on port %d", conf.Server.Port)
-	}
+	srv.StartAndWaitForShutdown()
 }

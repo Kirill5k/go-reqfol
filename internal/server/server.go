@@ -10,11 +10,14 @@ import (
 	"github.com/ziflex/lecho/v3"
 	"kirill5k/reqfol/internal/config"
 	"net/http"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 )
 
 type Server interface {
-	Start() error
-	Shutdown(ctx context.Context) error
+	StartAndWaitForShutdown()
 	PrefixRoute(prefix string)
 	AddRoute(method, path string, handler echo.HandlerFunc)
 }
@@ -29,15 +32,26 @@ type echoServer struct {
 	routeGroup *echo.Group
 }
 
-func (s *echoServer) Start() error {
-	if err := s.echo.Start(fmt.Sprintf(":%d", s.port)); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		return err
-	}
-	return nil
-}
+func (s *echoServer) StartAndWaitForShutdown() {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		log.Info().Msgf("Starting Echo server on port: %d", s.port)
+		if err := s.echo.Start(fmt.Sprintf(":%d", s.port)); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Err(err).Msg("Error starting Echo server")
+		}
+	}()
 
-func (s *echoServer) Shutdown(ctx context.Context) error {
-	return s.echo.Shutdown(ctx)
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
+	<-sigChan
+
+	log.Info().Msg("Shutting down Echo server")
+	if err := s.echo.Shutdown(context.Background()); err != nil {
+		log.Err(err).Msg("Failed to shut down Echo server")
+	}
+	wg.Wait()
 }
 
 func (s *echoServer) AddRoute(method, path string, handler echo.HandlerFunc) {
