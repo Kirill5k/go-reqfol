@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/labstack/echo/v4"
@@ -13,7 +14,7 @@ import (
 
 type Server interface {
 	Start() error
-	Close() error
+	Shutdown(ctx context.Context) error
 	PrefixRoute(prefix string)
 	AddRoute(method, path string, handler echo.HandlerFunc)
 }
@@ -35,8 +36,8 @@ func (s *echoServer) Start() error {
 	return nil
 }
 
-func (s *echoServer) Close() error {
-	return s.echo.Close()
+func (s *echoServer) Shutdown(ctx context.Context) error {
+	return s.echo.Shutdown(ctx)
 }
 
 func (s *echoServer) AddRoute(method, path string, handler echo.HandlerFunc) {
