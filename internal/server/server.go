@@ -13,6 +13,7 @@ import (
 
 type Server interface {
 	Start() error
+	Close() error
 	PrefixRoute(prefix string)
 	AddRoute(method, path string, handler echo.HandlerFunc)
 }
@@ -32,6 +33,10 @@ func (s *echoServer) Start() error {
 		return err
 	}
 	return nil
+}
+
+func (s *echoServer) Close() error {
+	return s.echo.Close()
 }
 
 func (s *echoServer) AddRoute(method, path string, handler echo.HandlerFunc) {
