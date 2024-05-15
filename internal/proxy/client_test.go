@@ -92,8 +92,8 @@ func TestRestyClient_Send_RetriesOnerror(t *testing.T) {
 	require.Equal(t, successResponse, response.Body)
 }
 
-func clientConfig() config.Client {
-	return config.Client{
+func clientConfig() *config.Client {
+	return &config.Client{
 		MaxIdleConns:        1,
 		MaxIdleConnsPerHost: 1,
 		IdleConnTimeout:     1,
