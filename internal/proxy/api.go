@@ -30,7 +30,6 @@ func NewApi(client Client, inter interrupter.Interrupter) *Api {
 /*
 TODO:
 2: Logging
-3: Interrapt on 403
 */
 func (api *Api) RegisterRoutes(server server.Server) {
 	handler := func(ctx echo.Context) error {
