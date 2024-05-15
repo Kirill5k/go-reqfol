@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	headerXRerouteTo = "X-Reroute-To"
+	headerXRerouteTo  = "X-Reroute-To"
+	headerReloadOn403 = "X-Reload-On-403"
 
 	invalidHeaderRegex = "(?i)^((x|cf|fly|sec)-.*|host|via)$"
 )

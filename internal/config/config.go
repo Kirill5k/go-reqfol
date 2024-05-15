@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+type Interrupter struct {
+	InitialDelay time.Duration `mapstructure:"initial-delay"`
+}
+
 type Server struct {
 	Port int `mapstructure:"port"`
 }
@@ -21,8 +25,9 @@ type Client struct {
 }
 
 type App struct {
-	Server Server
-	Client Client
+	Server      Server
+	Client      Client
+	Interrupter Interrupter
 }
 
 func LoadAppConfig() *App {

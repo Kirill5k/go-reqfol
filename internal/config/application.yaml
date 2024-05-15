@@ -9,3 +9,6 @@ client:
   retry-count: 5
   retry-wait-time: 2s
   retry-max-wait-time: 10s
+
+interrupter:
+  initial-delay: 30m
