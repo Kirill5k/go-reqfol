@@ -12,19 +12,19 @@ type Interrupter interface {
 	Interrupt() bool
 }
 
-type SignallingInterrupter struct {
+type signallingInterrupter struct {
 	initialDelay time.Duration
 	startupTime  time.Time
 }
 
 func NewSignallingInterrupter(conf *config.Interrupter) Interrupter {
-	return &SignallingInterrupter{
+	return &signallingInterrupter{
 		initialDelay: conf.InitialDelay,
 		startupTime:  time.Now(),
 	}
 }
 
-func (si *SignallingInterrupter) Interrupt() bool {
+func (si *signallingInterrupter) Interrupt() bool {
 	currentTime := time.Now()
 	runTime := currentTime.Sub(si.startupTime)
 	if runTime > si.initialDelay {
@@ -40,6 +40,6 @@ func (si *SignallingInterrupter) Interrupt() bool {
 	}
 }
 
-func (si *SignallingInterrupter) StartupTime() time.Time {
+func (si *signallingInterrupter) StartupTime() time.Time {
 	return si.startupTime
 }

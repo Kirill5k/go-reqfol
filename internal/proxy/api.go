@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"io"
+	"kirill5k/reqfol/internal/interrupter"
 	"kirill5k/reqfol/internal/server"
 	"net/http"
 	"regexp"
@@ -18,11 +19,12 @@ const (
 )
 
 type Api struct {
-	client Client
+	client      Client
+	interrupter interrupter.Interrupter
 }
 
-func NewApi(client Client) *Api {
-	return &Api{client: client}
+func NewApi(client Client, inter interrupter.Interrupter) *Api {
+	return &Api{client: client, interrupter: inter}
 }
 
 /*
@@ -61,6 +63,9 @@ func (api *Api) RegisterRoutes(server server.Server) {
 		})
 		if err != nil {
 			return ctx.String(http.StatusInternalServerError, err.Error())
+		}
+		if header := ctx.Request().Header.Get(headerReloadOn403); header != "" && res.StatusCode == http.StatusForbidden {
+			api.interrupter.Interrupt()
 		}
 		return ctx.Blob(res.StatusCode, res.ContentType, []byte(res.Body))
 	}

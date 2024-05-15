@@ -26,7 +26,7 @@ func main() {
 
 	apis := []server.RouteRegister{
 		health.NewModule(inter).Api,
-		proxy.NewModule(&conf.Client).Api,
+		proxy.NewModule(&conf.Client, inter).Api,
 	}
 
 	srv := server.NewEchoServer(&conf.Server)
