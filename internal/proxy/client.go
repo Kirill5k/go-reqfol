@@ -46,7 +46,7 @@ func (rc restyClient) Send(req RequestMetadata) (*ResponseMetadata, error) {
 
 	return &ResponseMetadata{
 		StatusCode:  res.StatusCode(),
-		Body:        string(res.Body()[:]),
+		Body:        res.Body(),
 		ContentType: res.Header().Get("Content-Type"),
 	}, nil
 }

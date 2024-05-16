@@ -15,7 +15,7 @@ const errorResponse = `{"message": "Internal Server Error"}`
 
 func TestRestyClient_Send_ReturnsOk(t *testing.T) {
 	requestPath := ""
-	requestBody := ""
+	requestBody := make([]byte, 0)
 	requestHeaders := make(map[string]string)
 	requestQueryParams := make(map[string]string)
 	server := httptest.NewServer(http.HandlerFunc(
@@ -25,7 +25,7 @@ func TestRestyClient_Send_ReturnsOk(t *testing.T) {
 				requestQueryParams[pn] = pv[0]
 			}
 			if body, err := io.ReadAll(r.Body); err == nil {
-				requestBody = string(body[:])
+				requestBody = body[:]
 			}
 			for hk, hv := range r.Header {
 				requestHeaders[hk] = hv[0]
@@ -43,7 +43,7 @@ func TestRestyClient_Send_ReturnsOk(t *testing.T) {
 		Url:         server.URL + "/hello/world",
 		Headers:     map[string]string{"Foo": "bar", "User-Agent": "test"},
 		QueryParams: map[string]string{"param1": "value"},
-		Body:        `{"body": "requestBody"}`,
+		Body:        []byte(`{"body": "requestBody"}`),
 	}
 	response, err := client.Send(request)
 
@@ -54,7 +54,7 @@ func TestRestyClient_Send_ReturnsOk(t *testing.T) {
 	require.Equal(t, request.QueryParams, requestQueryParams)
 	require.Equal(t, "application/json", response.ContentType)
 	require.Equal(t, 200, response.StatusCode)
-	require.Equal(t, successResponse, response.Body)
+	require.Equal(t, []byte(successResponse), response.Body)
 }
 
 func TestRestyClient_Send_RetriesOnerror(t *testing.T) {
@@ -82,14 +82,14 @@ func TestRestyClient_Send_RetriesOnerror(t *testing.T) {
 		Url:         server.URL + "/hello/world",
 		Headers:     map[string]string{"Foo": "bar", "User-Agent": "test"},
 		QueryParams: map[string]string{"param1": "value"},
-		Body:        `{"body": "requestBody"}`,
+		Body:        []byte(`{"body": "requestBody"}`),
 	}
 	response, err := client.Send(request)
 
 	require.NoError(t, err)
 	require.Equal(t, "application/json", response.ContentType)
 	require.Equal(t, 200, response.StatusCode)
-	require.Equal(t, successResponse, response.Body)
+	require.Equal(t, []byte(successResponse), response.Body)
 }
 
 func clientConfig() *config.Client {
