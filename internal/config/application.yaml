@@ -1,5 +1,5 @@
 server:
-  port: 6060
+  port: 8080
 
 client:
   max-idle-conns: 500
