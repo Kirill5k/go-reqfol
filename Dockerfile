@@ -10,4 +10,5 @@ RUN CGO_ENABLED=0 go build -o /main -ldflags="-w -s" .
 
 FROM golang:1.21-alpine
 COPY --from=build /main /main
+COPY --from=build /app/config/application.yaml /go/config/application.yaml
 CMD ["/main"]
