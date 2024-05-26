@@ -3,6 +3,7 @@ package proxy
 import (
 	"fmt"
 	"net/http"
+	"sort"
 	"strings"
 )
 
@@ -29,12 +30,17 @@ func (rm *RequestMetadata) String() string {
 		url = url + "?" + query
 	}
 
+	headerNames := make([]string, 0, len(rm.Headers))
+	for h := range rm.Headers {
+		headerNames = append(headerNames, h)
+	}
+	sort.Strings(headerNames)
 	headers := ""
-	for k, v := range rm.Headers {
+	for _, k := range headerNames {
 		if headers != "" {
-			headers = headers + " "
+			headers = headers + ", "
 		}
-		headers = headers + k + ":" + v
+		headers = headers + k + ":" + rm.Headers[k]
 	}
 	headers = "{" + headers + "}"
 
