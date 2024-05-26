@@ -65,7 +65,7 @@ func (api *Api) RegisterRoutes(server server.Server) {
 		if header := ctx.Request().Header.Get(headerReloadOn403); header != "" && res.IsForbidden() {
 			api.interrupter.Interrupt()
 		}
-		log.Info().Msgf("REQUEST %s %s %v RESPONSE %d", req.Method, req.Url, req.Headers, res.StatusCode)
+		log.Info().Msgf("REQUEST %s RESPONSE %d", req.String(), res.StatusCode)
 		return ctx.Blob(res.StatusCode, res.ContentType, res.Body)
 	}
 
