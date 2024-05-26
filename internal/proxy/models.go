@@ -1,6 +1,10 @@
 package proxy
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+	"strings"
+)
 
 type RequestMetadata struct {
 	Method      string
@@ -8,6 +12,33 @@ type RequestMetadata struct {
 	Headers     map[string]string
 	QueryParams map[string]string
 	Body        []byte
+}
+
+func (rm *RequestMetadata) String() string {
+	url := rm.Url
+	query := ""
+	for k, v := range rm.QueryParams {
+		if query != "" {
+			query = query + "&"
+		}
+		query = query + k + "=" + v
+	}
+	if query != "" && strings.Contains(url, "?") {
+		url = url + "&" + query
+	} else if query != "" {
+		url = url + "?" + query
+	}
+
+	headers := ""
+	for k, v := range rm.Headers {
+		if headers != "" {
+			headers = headers + " "
+		}
+		headers = headers + k + ":" + v
+	}
+	headers = "{" + headers + "}"
+
+	return fmt.Sprintf("%s %s %s", rm.Method, url, headers)
 }
 
 type ResponseMetadata struct {
