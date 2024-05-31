@@ -21,15 +21,12 @@ func main() {
 	log.Info().Msg("Starting request-follower")
 
 	conf := config.LoadAppConfig()
-
+	srv := server.NewEchoServer(&conf.Server)
 	inter := interrupter.NewSignallingInterrupter(&conf.Interrupter)
-
 	apis := []server.RouteRegister{
 		health.NewModule(inter).Api,
 		proxy.NewModule(&conf.Client, inter).Api,
 	}
-
-	srv := server.NewEchoServer(&conf.Server)
 	for _, api := range apis {
 		api.RegisterRoutes(srv)
 	}
