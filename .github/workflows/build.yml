@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Build Docker Image
 
 on:
   workflow_dispatch:
@@ -18,6 +18,6 @@ jobs:
       run: |-
         IMAGE_NAME="${DOCKER_REPO_URI}/${DOCKER_USERNAME}/go-reqfol"
         VERSION="${GITHUB_SHA::8}"
-        docker build . --file Dockerfile -t ${IMAGE_NAME}:latest -t ${IMAGE_NAME}:${VERSION} --build-arg version=${VERSION}
+        docker build . --file Dockerfile -t ${IMAGE_NAME}:latest -t ${IMAGE_NAME}:${VERSION} --build-arg VERSION=${VERSION}
         docker push -a ${IMAGE_NAME}
         
