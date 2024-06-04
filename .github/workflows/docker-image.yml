@@ -1,0 +1,23 @@
+name: Docker Image CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_REPO_URI: "registry.hub.docker.com"
+      DOCKER_USERNAME: "kirill1"
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build and Push the Docker image
+      run: |-
+        IMAGE_NAME="${DOCKER_REPO_URI}/${DOCKER_USERNAME}/go-reqfol"
+        VERSION="${GITHUB_SHA::8}"
+        docker build . --file Dockerfile -t ${IMAGE_NAME}:latest -t ${IMAGE_NAME}:${VERSION} --build-arg version=${VERSION}
+        docker push -a ${IMAGE_NAME}
+        
