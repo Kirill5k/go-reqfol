@@ -18,7 +18,7 @@ func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, NoColor: false, TimeFormat: "2020-01-01T00:00:00.999"})
 
-	log.Info().Msg("Starting request-follower")
+	log.Info().Msgf("Starting request-follower %s", os.Getenv("VERSION"))
 
 	conf := config.LoadAppConfig()
 	srv := server.NewEchoServer(&conf.Server)
