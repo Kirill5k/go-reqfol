@@ -16,13 +16,23 @@ type RequestMetadata struct {
 }
 
 func (rm *RequestMetadata) String() string {
+	getSortedKeys := func(pairs map[string]string) []string {
+		res := make([]string, 0, len(pairs))
+		for v := range pairs {
+			res = append(res, v)
+		}
+		sort.Strings(res)
+		return res
+	}
+
 	url := rm.Url
 	query := ""
-	for k, v := range rm.QueryParams {
+	queryParams := getSortedKeys(rm.QueryParams)
+	for _, k := range queryParams {
 		if query != "" {
 			query = query + "&"
 		}
-		query = query + k + "=" + v
+		query = query + k + "=" + rm.QueryParams[k]
 	}
 	if query != "" && strings.Contains(url, "?") {
 		url = url + "&" + query
@@ -30,11 +40,7 @@ func (rm *RequestMetadata) String() string {
 		url = url + "?" + query
 	}
 
-	headerNames := make([]string, 0, len(rm.Headers))
-	for h := range rm.Headers {
-		headerNames = append(headerNames, h)
-	}
-	sort.Strings(headerNames)
+	headerNames := getSortedKeys(rm.Headers)
 	headers := ""
 	for _, k := range headerNames {
 		if headers != "" {
