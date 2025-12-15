@@ -2,21 +2,22 @@ package proxy
 
 import (
 	"fmt"
-	"github.com/labstack/echo/v4"
-	"github.com/rs/zerolog/log"
 	"io"
 	"kirill5k/reqfol/internal/interrupter"
 	"kirill5k/reqfol/internal/server"
 	"net/http"
 	"regexp"
 	"strings"
+
+	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog/log"
 )
 
 const (
 	headerXRerouteTo  = "X-Reroute-To"
 	headerReloadOn403 = "X-Reload-On-403"
 
-	invalidHeaderRegex = "(?i)^((x|cf|fly|sec)-.*|host|via)$"
+	invalidHeaderRegex = "(?i)^((x-reroute|x-reload)-.*|host)$"
 )
 
 type Api struct {
