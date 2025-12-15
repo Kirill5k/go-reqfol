@@ -14,6 +14,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${DOCKER_USERNAME}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
     - name: Build and Push the Docker image
       run: |-
         IMAGE_NAME="${DOCKER_REPO_URI}/${DOCKER_USERNAME}/go-reqfol"
